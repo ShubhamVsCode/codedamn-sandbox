@@ -1,8 +1,8 @@
-import pty from "node-pty";
+import { fork } from "node-pty";
 import { Socket } from "socket.io";
 
 export const createTerminal = (socket: Socket) => {
-  const terminal = pty.spawn("bash", [], {
+  const terminal = fork("bash", [], {
     name: "xterm-color",
     cols: 80,
     rows: 30,
@@ -12,9 +12,12 @@ export const createTerminal = (socket: Socket) => {
 
   socket.on("command", (command) => {
     terminal.write(command);
+
+   console.log("Command gone to backend ", command)
   });
 
-  terminal.on("data", (data: string) => {
+  terminal.on("data", (data) => {
+	  console.log("Terminal Got",data)
     socket.emit("output", data);
   });
 };
