@@ -1,5 +1,7 @@
 import { fork } from "node-pty";
 import { Socket } from "socket.io";
+import dotenv from "dotenv";
+dotenv.config();
 
 const terminal = fork("bash", [], {
   name: "xterm-color",
