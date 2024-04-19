@@ -3,6 +3,9 @@ import {
   ListObjectsCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const AWS_REGION = "ap-south-1";
 const BUCKET_NAME = "codedamn-assignment";
