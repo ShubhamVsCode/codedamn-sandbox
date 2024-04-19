@@ -10,22 +10,19 @@
   "author": "ShubhamVsCode",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.556.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mongoose": "^8.3.2",
     "node-pty": "^1.0.0",
-    "shelljs": "^0.8.5",
     "socket.io": "^4.7.5",
-    "terminal-kit": "^3.1.1",
-    "typescript": "^5.4.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
-    "@types/shelljs": "^0.8.15",
     "tsc": "^2.0.4",
-    "tsx": "^4.7.2"
+    "tsx": "^4.7.2",
+    "typescript": "^5.4.5"
   },
   "keywords": []
 }

@@ -1,8 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
 import http from "http";
-import { Server, Socket } from "socket.io";
-import { createTerminal } from "./terminal";
+import { Server } from "socket.io";
+import { createTerminal, killTerminal } from "./utils/terminal";
+import { getFiles } from "./utils/files";
+import { z } from "zod";
 
 dotenv.config();
 
@@ -21,14 +23,18 @@ app.get("/health", (req, res) => {
   res.json({ message: "Healthy!" });
 });
 
-const commandBuffer = new Map();
-
 io.on("connection", (socket) => {
-  createTerminal(socket)
+  const userId = socket.handshake.query.userId;
+  const userIdAsString = z.string().parse(userId);
+
+  console.log(`User connected: ${userIdAsString}`);
+
+  createTerminal(socket);
+  getFiles(userIdAsString);
 
   socket.on("disconnect", () => {
-    console.log("Client disconnected");
-    commandBuffer.delete(socket.id);
+    console.log(`User disconnected: ${userIdAsString}`);
+    killTerminal();
   });
 });
 
