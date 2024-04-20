@@ -57,7 +57,7 @@ export const uploadFile = async (
 
 export const createFileInContainer = async (filePath: string) => {
   return new Promise((resolve, reject) => {
-    fs.writeFile(HOME + filePath, "", (err: unknown) => {
+    fs.writeFile(HOME + "/" + filePath, "", (err: unknown) => {
       if (err) {
         reject(err);
       } else {
