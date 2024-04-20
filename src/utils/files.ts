@@ -32,7 +32,8 @@ export const getFiles = async (userId: string, socket: Socket) => {
   socket.emit("allFiles", allFilesName);
 
   for (const file of allFilesName) {
-    const filePath = `${HOME}/${file}`;
+    const fileNameLocal = file?.split("/").pop();
+    const filePath = `${HOME}/${fileNameLocal}`;
     const params = {
       Bucket: BUCKET_NAME,
       Key: file,
