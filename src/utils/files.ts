@@ -5,6 +5,7 @@ import {
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import fs from "fs";
+import path from "path";
 import dotenv from "dotenv";
 import { Socket } from "socket.io";
 
@@ -42,6 +43,10 @@ export const getFiles = async (userId: string, socket: Socket) => {
     const data = (await s3.send(new GetObjectCommand(params))).Body!;
     const fileContent = await data.transformToString("utf-8");
 
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     fs.writeFileSync(filePath, fileContent);
 
     console.log(`File ${filePath} downloaded successfully`);
