@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import { createTerminal, killTerminal } from "./utils/terminal";
-import { getFiles } from "./utils/files";
+import { createFileInContainer, getFiles, uploadFile } from "./utils/files";
 import { z } from "zod";
 
 dotenv.config();
@@ -31,6 +31,12 @@ io.on("connection", (socket) => {
 
   createTerminal(socket);
   getFiles(userIdAsString);
+
+  socket.on("newFile", async (fileName: string) => {
+    await createFileInContainer(fileName);
+    await uploadFile(userIdAsString, fileName, "");
+    socket.emit("newFileCreated", fileName);
+  });
 
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${userIdAsString}`);

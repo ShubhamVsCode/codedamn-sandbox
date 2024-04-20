@@ -3,13 +3,14 @@ import {
   ListObjectsCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import fs from "fs";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const AWS_REGION = "ap-south-1";
 const BUCKET_NAME = "codedamn-assignment";
-("codedamn-assignment");
+const HOME = "../../code";
 
 const s3 = new S3Client({
   region: AWS_REGION,
@@ -52,4 +53,16 @@ export const uploadFile = async (
 
   console.log(`Uploading file ${fileName} to folder ${folder}`);
   await s3.send(new PutObjectCommand(params));
+};
+
+export const createFileInContainer = async (filePath: string) => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(HOME + filePath, "", (err: unknown) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve("");
+      }
+    });
+  });
 };

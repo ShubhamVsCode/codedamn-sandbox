@@ -10,6 +10,7 @@ const terminal = fork("bash", [], {
   cwd: process.env.HOME,
   env: process.env,
 });
+
 export const createTerminal = (socket: Socket) => {
   socket.on("command", (command) => {
     terminal.write(command);
