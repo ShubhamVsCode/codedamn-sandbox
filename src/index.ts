@@ -7,6 +7,7 @@ import {
   createFileInContainer,
   getFileContent,
   getFiles,
+  updateLocalInContainer,
   uploadFile,
 } from "./utils/files";
 import { z } from "zod";
@@ -46,6 +47,12 @@ io.on("connection", (socket) => {
   socket.on("getFileContent", async (fileName: string) => {
     const fileContent = await getFileContent(fileName);
     socket.emit("fileContent", { fileName, fileContent });
+  });
+
+  socket.on("updateContent", async ({ fileName, fileContent }) => {
+    await uploadFile(userIdAsString, fileName, fileContent);
+    await updateLocalInContainer(fileName, fileContent);
+    socket.emit("fileContentUpdated", { fileName, fileContent });
   });
 
   socket.on("disconnect", () => {

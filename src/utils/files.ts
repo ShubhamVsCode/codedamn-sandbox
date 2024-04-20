@@ -52,7 +52,6 @@ export const getFiles = async (userId: string, socket: Socket) => {
 
   const allFiles = allFilesName.map((file) => file?.split("/").pop());
 
-  console.log(allFiles);
   socket.emit("allFiles", allFiles);
 };
 
@@ -77,7 +76,7 @@ export const uploadFile = async (
   const params = {
     Bucket: BUCKET_NAME,
     Key: key,
-    Body: fileContent ?? "Helloooooooooooo",
+    Body: fileContent,
     ContentLength: fileContent.length,
   };
 
@@ -104,6 +103,21 @@ export const getFileContent = async (filePath: string) => {
         reject(err);
       } else {
         resolve(data);
+      }
+    });
+  });
+};
+
+export const updateLocalInContainer = async (
+  filePath: string,
+  fileContent: string,
+) => {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(HOME + "/" + filePath, fileContent, (err: unknown) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve("");
       }
     });
   });
