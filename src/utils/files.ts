@@ -30,8 +30,6 @@ export const getFiles = async (userId: string, socket: Socket) => {
 
   const allFilesName = files?.map(({ Key }) => Key) || [];
 
-  socket.emit("allFiles", allFilesName);
-
   for (const file of allFilesName) {
     const fileNameLocal = file?.split("/").pop();
     const filePath = `${HOME}/${fileNameLocal}`;
@@ -51,6 +49,11 @@ export const getFiles = async (userId: string, socket: Socket) => {
 
     console.log(`File ${filePath} downloaded successfully`);
   }
+
+  const allFiles = allFilesName.map((file) => file?.split("/").pop());
+
+  console.log(allFiles);
+  socket.emit("allFiles", allFiles);
 };
 
 const s3GetFiles = async (folder: string) => {
@@ -89,6 +92,18 @@ export const createFileInContainer = async (filePath: string) => {
         reject(err);
       } else {
         resolve("");
+      }
+    });
+  });
+};
+
+export const getFileContent = async (filePath: string) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(HOME + "/" + filePath, "utf8", (err: unknown, data: string) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
       }
     });
   });
