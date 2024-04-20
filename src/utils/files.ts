@@ -49,6 +49,7 @@ export const uploadFile = async (
     Bucket: BUCKET_NAME,
     Key: key,
     Body: fileContent,
+    ContentLength: fileContent.length
   };
 
   console.log(`Uploading file ${fileName} to folder ${folder}`);
