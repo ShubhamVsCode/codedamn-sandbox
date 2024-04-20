@@ -35,7 +35,7 @@ export const getFiles = async (userId: string, socket: Socket) => {
     const filePath = `${HOME}/${file}`;
     const params = {
       Bucket: BUCKET_NAME,
-      Key: filePath,
+      Key: file,
     };
 
     const data = await s3.send(new GetObjectCommand(params));
