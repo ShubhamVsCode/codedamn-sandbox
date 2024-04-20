@@ -31,7 +31,13 @@ app.get("/health", (req, res) => {
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
-  const userIdAsString = z.string().parse(userId);
+  const parsedUserId = z.string().safeParse(userId);
+
+  if (!parsedUserId.success) {
+    return socket.disconnect();
+  }
+
+  const userIdAsString = parsedUserId.data;
 
   console.log(`User connected: ${userIdAsString}`);
 
