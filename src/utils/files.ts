@@ -38,9 +38,11 @@ export const getFiles = async (userId: string, socket: Socket) => {
       Key: file,
     };
 
-    const data = await s3.send(new GetObjectCommand(params));
+    const data = (await s3.send(new GetObjectCommand(params))).Body!;
+    const fileContent = await data.transformToString("utf-8");
 
-    fs.writeFileSync(filePath, data.Body as unknown as string);
+    fs.writeFileSync(filePath, fileContent);
+
     console.log(`File ${filePath} downloaded successfully`);
   }
 };
