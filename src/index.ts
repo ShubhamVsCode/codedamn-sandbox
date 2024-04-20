@@ -50,6 +50,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("updateContent", async ({ fileName, fileContent }) => {
+    console.log(`Updating file ${fileName}`);
     await uploadFile(userIdAsString, fileName, fileContent);
     await updateLocalInContainer(fileName, fileContent);
     socket.emit("fileContentUpdated", { fileName, fileContent });

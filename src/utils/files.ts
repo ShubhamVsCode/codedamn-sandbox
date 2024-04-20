@@ -26,7 +26,7 @@ const s3 = new S3Client({
 export const getFiles = async (userId: string, socket: Socket) => {
   const folder = `code-${userId}`;
   const files = await s3GetFiles(folder);
-  console.log(`Files in folder ${folder}:`, files);
+  // console.log(`Files in folder ${folder}:`, files);
 
   const allFilesName = files?.map(({ Key }) => Key) || [];
 
@@ -112,6 +112,8 @@ export const updateLocalInContainer = async (
   filePath: string,
   fileContent: string,
 ) => {
+  console.log(`Updating file ${filePath} in container`);
+
   return new Promise((resolve, reject) => {
     fs.writeFile(HOME + "/" + filePath, fileContent, (err: unknown) => {
       if (err) {
