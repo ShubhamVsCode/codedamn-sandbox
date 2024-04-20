@@ -30,7 +30,7 @@ io.on("connection", (socket) => {
   console.log(`User connected: ${userIdAsString}`);
 
   createTerminal(socket);
-  getFiles(userIdAsString);
+  getFiles(userIdAsString, socket);
 
   socket.on("newFile", async (fileName: string) => {
     await createFileInContainer(fileName);

@@ -2,9 +2,11 @@ import {
   S3Client,
   ListObjectsCommand,
   PutObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import fs from "fs";
 import dotenv from "dotenv";
+import { Socket } from "socket.io";
 
 dotenv.config();
 
@@ -20,11 +22,27 @@ const s3 = new S3Client({
   },
 });
 
-export const getFiles = async (userId: string) => {
+export const getFiles = async (userId: string, socket: Socket) => {
   const folder = `code-${userId}`;
   const files = await s3GetFiles(folder);
   console.log(`Files in folder ${folder}:`, files);
-  return files;
+
+  const allFilesName = files?.map(({ Key }) => Key) || [];
+
+  socket.emit("allFiles", allFilesName);
+
+  for (const file of allFilesName) {
+    const filePath = `${HOME}/${file}`;
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: filePath,
+    };
+
+    const data = await s3.send(new GetObjectCommand(params));
+
+    fs.writeFileSync(filePath, data.Body as unknown as string);
+    console.log(`File ${filePath} downloaded successfully`);
+  }
 };
 
 const s3GetFiles = async (folder: string) => {
@@ -48,7 +66,8 @@ export const uploadFile = async (
   const params = {
     Bucket: BUCKET_NAME,
     Key: key,
-    Body: fileContent,
+    Body: fileContent ?? "Helloooooooooooo",
+    ContentLength: fileContent.length,
   };
 
   console.log(`Uploading file ${fileName} to folder ${folder}`);
