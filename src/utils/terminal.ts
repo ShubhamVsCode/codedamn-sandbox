@@ -13,10 +13,12 @@ const terminal = fork("bash", [], {
 
 export const createTerminal = (socket: Socket) => {
   socket.on("command", (command) => {
+    console.log("Getting terminal command", command);
     terminal.write(command);
   });
 
   terminal.on("data", (data) => {
+    console.log("Terminal Sending...", data);
     socket.emit("output", data);
   });
 };
