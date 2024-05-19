@@ -11,6 +11,7 @@ import {
   uploadFile,
 } from "./utils/files";
 import { z } from "zod";
+import morgan from "morgan";
 
 dotenv.config();
 
@@ -25,8 +26,10 @@ const io = new Server(server, {
 });
 
 app.use(express.json());
+app.use(morgan("tiny"));
 
 app.get("/health", (req, res) => {
+  console.log("Health check for sandbox");
   res.json({ message: "Healthy Sandbox!" });
 });
 
