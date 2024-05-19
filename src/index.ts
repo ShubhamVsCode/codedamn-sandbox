@@ -19,7 +19,8 @@ const PORT = process.env.PORT || 4000;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000"],
+    origin: ["*"],
+    methods: ["GET", "POST"],
   },
 });
 
@@ -30,6 +31,7 @@ app.get("/health", (req, res) => {
 });
 
 io.on("connection", (socket) => {
+  console.log("Connecting to socket");
   const userId = socket.handshake.query.userId;
   const parsedUserId = z.string().safeParse(userId);
 
