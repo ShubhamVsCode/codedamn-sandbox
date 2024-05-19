@@ -27,7 +27,7 @@ const io = new Server(server, {
 app.use(express.json());
 
 app.get("/health", (req, res) => {
-  res.json({ message: "Healthy!" });
+  res.json({ message: "Healthy Sandbox!" });
 });
 
 io.on("connection", (socket) => {
