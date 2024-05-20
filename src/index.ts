@@ -84,16 +84,14 @@ io.on("connection", (socket) => {
     // socket.emit("newFileCreated", fileName);
   });
 
-  socket.on("getFile", async (filePath: string) => {
+  socket.on("getFile", async ({ filePath }: { filePath: string }) => {
     const fileContent = getFileContent(filePath);
     socket.emit("file", { filePath, fileContent });
   });
 
-  socket.on("updateContent", async ({ fileName, fileContent }) => {
-    // console.log(`Updating file ${fileName}`);
-    // await uploadFile(userIdAsString, fileName, fileContent);
-    // await updateLocalInContainer(fileName, fileContent);
-    socket.emit("fileContentUpdated", { fileName, fileContent });
+  socket.on("updateContent", async ({ filePath, fileContent }) => {
+    updateLocalInContainer(filePath, fileContent);
+    socket.emit("fileContentUpdated", { filePath, fileContent });
   });
 
   socket.on("disconnect", () => {

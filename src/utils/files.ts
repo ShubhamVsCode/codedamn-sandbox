@@ -146,19 +146,9 @@ export const getFileContent = (filePath: string): string => {
   }
 };
 
-export const updateLocalInContainer = async (
+export const updateLocalInContainer = (
   filePath: string,
   fileContent: string,
 ) => {
-  console.log(`Updating file ${filePath} in container`);
-
-  return new Promise((resolve, reject) => {
-    fs.writeFile(HOME_DIR + "/" + filePath, fileContent, (err: unknown) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve("");
-      }
-    });
-  });
+  fs.writeFileSync(filePath, fileContent);
 };
