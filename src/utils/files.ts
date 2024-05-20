@@ -13,7 +13,7 @@ dotenv.config();
 
 const AWS_REGION = "ap-south-1";
 const BUCKET_NAME = "codedamn-assignment";
-const HOME = "../../code";
+export const HOME_DIR = process.env.HOME_DIR || "../../code";
 
 const s3 = new S3Client({
   region: AWS_REGION,
@@ -22,6 +22,31 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
 });
+
+export const readDirectory = (dirPath: string) => {
+  const files: any[] = [];
+  const items = fs.readdirSync(dirPath, { withFileTypes: true });
+
+  items.forEach((item) => {
+    const fullPath = path.join(dirPath, item.name);
+    if (item.isDirectory()) {
+      files.push({
+        name: item.name,
+        path: fullPath,
+        isDir: true,
+        children: readDirectory(fullPath),
+      });
+    } else {
+      files.push({
+        name: item.name,
+        path: fullPath,
+        isDir: false,
+      });
+    }
+  });
+
+  return files;
+};
 
 export const getFiles = async (userId: string, socket: Socket) => {
   const folder = `code-${userId}`;
@@ -32,7 +57,7 @@ export const getFiles = async (userId: string, socket: Socket) => {
 
   for (const file of allFilesName) {
     const fileNameLocal = file?.split("/").pop();
-    const filePath = `${HOME}/${fileNameLocal}`;
+    const filePath = `${HOME_DIR}/${fileNameLocal}`;
     const params = {
       Bucket: BUCKET_NAME,
       Key: file,
@@ -86,7 +111,7 @@ export const uploadFile = async (
 
 export const createFileInContainer = async (filePath: string) => {
   return new Promise((resolve, reject) => {
-    fs.writeFile(HOME + "/" + filePath, "", (err: unknown) => {
+    fs.writeFile(HOME_DIR + "/" + filePath, "", (err: unknown) => {
       if (err) {
         reject(err);
       } else {
@@ -98,13 +123,17 @@ export const createFileInContainer = async (filePath: string) => {
 
 export const getFileContent = async (filePath: string) => {
   return new Promise((resolve, reject) => {
-    fs.readFile(HOME + "/" + filePath, "utf8", (err: unknown, data: string) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
+    fs.readFile(
+      HOME_DIR + "/" + filePath,
+      "utf8",
+      (err: unknown, data: string) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      },
+    );
   });
 };
 
@@ -115,7 +144,7 @@ export const updateLocalInContainer = async (
   console.log(`Updating file ${filePath} in container`);
 
   return new Promise((resolve, reject) => {
-    fs.writeFile(HOME + "/" + filePath, fileContent, (err: unknown) => {
+    fs.writeFile(HOME_DIR + "/" + filePath, fileContent, (err: unknown) => {
       if (err) {
         reject(err);
       } else {
