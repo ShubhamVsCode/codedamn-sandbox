@@ -55,6 +55,10 @@ io.on("connection", (socket) => {
 
   socket.on("getFileStructure", () => getFileStructure(socket));
 
+  fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
+    socket.emit("fileChanged", { filename, eventType });
+  });
+
   socket.on(
     "addFile",
     async ({ filePath, isDir }: { filePath: string; isDir: boolean }) => {
@@ -96,10 +100,6 @@ io.on("connection", (socket) => {
     console.log(`User disconnected: ${userIdAsString}`);
     killTerminal();
   });
-});
-
-fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
-  io?.emit("fileChanged", { filename, eventType });
 });
 
 server.listen(PORT, async () => {
