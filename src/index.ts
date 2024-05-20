@@ -56,6 +56,11 @@ io.on("connection", (socket) => {
   socket.on("getFileStructure", async () => {
     try {
       const rootDir = HOME_DIR;
+
+      if (!fs.existsSync(rootDir)) {
+        fs.mkdirSync(rootDir, { recursive: true });
+      }
+
       const fileStructure = readDirectory(rootDir);
       socket.emit("fileStructure", fileStructure);
     } catch (error) {
