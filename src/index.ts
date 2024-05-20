@@ -56,9 +56,9 @@ io.on("connection", (socket) => {
     async ({ filePath, isDir }: { filePath: string; isDir: boolean }) => {
       console.log(`Adding ${isDir ? "directory" : "file"} at ${filePath}`);
       try {
-        if (isDir) {
-          fs.mkdirSync(filePath, { recursive: true });
-        } else {
+        const dirPath = isDir ? filePath : path.dirname(filePath);
+        fs.mkdirSync(dirPath, { recursive: true });
+        if (!isDir) {
           fs.writeFileSync(filePath, "");
         }
         io.emit("newFileCreated", { filePath, isDir });
