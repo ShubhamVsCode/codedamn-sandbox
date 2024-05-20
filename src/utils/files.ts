@@ -137,12 +137,13 @@ export const createFileInContainer = async (filePath: string) => {
   });
 };
 
-export const getFileContent = (filePath: string): string => {
+export const getFileContent = (filePath: string) => {
   try {
-    const data = fs.readFileSync(filePath, "utf8");
+    const absolutePath = path.join(HOME_DIR, filePath);
+    const data = fs.readFileSync(absolutePath, "utf8");
     return data;
   } catch (err) {
-    throw new Error(`Error reading file: ${err}`);
+    console.log(`Error reading file: ${err}`);
   }
 };
 
@@ -150,5 +151,11 @@ export const updateLocalInContainer = (
   filePath: string,
   fileContent: string,
 ) => {
-  fs.writeFileSync(filePath, fileContent);
+  try {
+    const absolutePath = path.join(HOME_DIR, filePath);
+    fs.writeFileSync(absolutePath, fileContent);
+  } catch (err) {
+    console.log(`Error updating file: ${err}`);
+    return;
+  }
 };
