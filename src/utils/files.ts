@@ -137,20 +137,13 @@ export const createFileInContainer = async (filePath: string) => {
   });
 };
 
-export const getFileContent = async (filePath: string) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(
-      HOME_DIR + "/" + filePath,
-      "utf8",
-      (err: unknown, data: string) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
-        }
-      },
-    );
-  });
+export const getFileContent = (filePath: string): string => {
+  try {
+    const data = fs.readFileSync(filePath, "utf8");
+    return data;
+  } catch (err) {
+    throw new Error(`Error reading file: ${err}`);
+  }
 };
 
 export const updateLocalInContainer = async (

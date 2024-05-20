@@ -84,9 +84,9 @@ io.on("connection", (socket) => {
     // socket.emit("newFileCreated", fileName);
   });
 
-  socket.on("getFileContent", async (fileName: string) => {
-    const fileContent = await getFileContent(fileName);
-    socket.emit("fileContent", { fileName, fileContent });
+  socket.on("getFile", async (filePath: string) => {
+    const fileContent = getFileContent(filePath);
+    socket.emit("file", { filePath, fileContent });
   });
 
   socket.on("updateContent", async ({ fileName, fileContent }) => {
