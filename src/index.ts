@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
 });
 
 fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
-  io.emit("fileChanged", { filename, eventType });
+  io?.emit("fileChanged", { filename, eventType });
 });
 
 server.listen(PORT, async () => {
