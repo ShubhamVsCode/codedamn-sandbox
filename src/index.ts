@@ -7,7 +7,7 @@ import {
   HOME_DIR,
   createFileInContainer,
   getFileContent,
-  getFiles,
+  getFileStructure,
   readDirectory,
   updateLocalInContainer,
   uploadFile,
@@ -51,23 +51,9 @@ io.on("connection", (socket) => {
   console.log(`User connected: ${userIdAsString}`);
 
   createTerminal(socket);
-  getFiles(userIdAsString, socket);
+  getFileStructure(socket);
 
-  socket.on("getFileStructure", async () => {
-    try {
-      const rootDir = HOME_DIR;
-
-      if (!fs.existsSync(rootDir)) {
-        fs.mkdirSync(rootDir, { recursive: true });
-      }
-
-      const fileStructure = readDirectory(rootDir);
-      socket.emit("fileStructure", fileStructure);
-    } catch (error) {
-      console.error("Error reading file structure:", error);
-      socket.emit("error", { message: error });
-    }
-  });
+  socket.on("getFileStructure", () => getFileStructure(socket));
 
   socket.on(
     "addFile",

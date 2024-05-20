@@ -48,36 +48,52 @@ export const readDirectory = (dirPath: string) => {
   return files;
 };
 
-export const getFiles = async (userId: string, socket: Socket) => {
-  const folder = `code-${userId}`;
-  const files = await s3GetFiles(folder);
-  // console.log(`Files in folder ${folder}:`, files);
+// export const getFiles = async (userId: string, socket: Socket) => {
+//   const folder = `code-${userId}`;
+//   const files = await s3GetFiles(folder);
+//   // console.log(`Files in folder ${folder}:`, files);
 
-  const allFilesName = files?.map(({ Key }) => Key) || [];
+//   const allFilesName = files?.map(({ Key }) => Key) || [];
 
-  for (const file of allFilesName) {
-    const fileNameLocal = file?.split("/").pop();
-    const filePath = `${HOME_DIR}/${fileNameLocal}`;
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: file,
-    };
+//   for (const file of allFilesName) {
+//     const fileNameLocal = file?.split("/").pop();
+//     const filePath = `${HOME_DIR}/${fileNameLocal}`;
+//     const params = {
+//       Bucket: BUCKET_NAME,
+//       Key: file,
+//     };
 
-    const data = (await s3.send(new GetObjectCommand(params))).Body!;
-    const fileContent = await data.transformToString("utf-8");
+//     const data = (await s3.send(new GetObjectCommand(params))).Body!;
+//     const fileContent = await data.transformToString("utf-8");
 
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+//     const dir = path.dirname(filePath);
+//     if (!fs.existsSync(dir)) {
+//       fs.mkdirSync(dir, { recursive: true });
+//     }
+//     fs.writeFileSync(filePath, fileContent);
+
+//     console.log(`File ${filePath} downloaded successfully`);
+//   }
+
+//   const allFiles = allFilesName.map((file) => file?.split("/").pop());
+
+//   socket.emit("allFiles", allFiles);
+// };
+
+export const getFileStructure = async (socket: Socket) => {
+  try {
+    const rootDir = HOME_DIR;
+
+    if (!fs.existsSync(rootDir)) {
+      fs.mkdirSync(rootDir, { recursive: true });
     }
-    fs.writeFileSync(filePath, fileContent);
 
-    console.log(`File ${filePath} downloaded successfully`);
+    const fileStructure = readDirectory(rootDir);
+    socket.emit("fileStructure", fileStructure);
+  } catch (error) {
+    console.error("Error reading file structure:", error);
+    socket.emit("error", { message: error });
   }
-
-  const allFiles = allFilesName.map((file) => file?.split("/").pop());
-
-  socket.emit("allFiles", allFiles);
 };
 
 const s3GetFiles = async (folder: string) => {
