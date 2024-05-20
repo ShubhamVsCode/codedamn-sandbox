@@ -12,6 +12,8 @@ import {
 } from "./utils/files";
 import { z } from "zod";
 import morgan from "morgan";
+import path from "path";
+import fs from "fs";
 
 dotenv.config();
 
@@ -49,10 +51,28 @@ io.on("connection", (socket) => {
   createTerminal(socket);
   getFiles(userIdAsString, socket);
 
+  socket.on(
+    "addFile",
+    async ({ filePath, isDir }: { filePath: string; isDir: boolean }) => {
+      console.log(`Adding ${isDir ? "directory" : "file"} at ${filePath}`);
+      try {
+        if (isDir) {
+          fs.mkdirSync(filePath, { recursive: true });
+        } else {
+          fs.writeFileSync(filePath, "");
+        }
+        io.emit("newFileCreated", { filePath, isDir });
+      } catch (error) {
+        console.error(`Error adding ${isDir ? "directory" : "file"}:`, error);
+        socket.emit("error", { message: error });
+      }
+    },
+  );
+
   socket.on("newFile", async (fileName: string) => {
-    await createFileInContainer(fileName);
-    await uploadFile(userIdAsString, fileName, "");
-    socket.emit("newFileCreated", fileName);
+    // await createFileInContainer(fileName);
+    // await uploadFile(userIdAsString, fileName, "");
+    // socket.emit("newFileCreated", fileName);
   });
 
   socket.on("getFileContent", async (fileName: string) => {
@@ -61,9 +81,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("updateContent", async ({ fileName, fileContent }) => {
-    console.log(`Updating file ${fileName}`);
-    await uploadFile(userIdAsString, fileName, fileContent);
-    await updateLocalInContainer(fileName, fileContent);
+    // console.log(`Updating file ${fileName}`);
+    // await uploadFile(userIdAsString, fileName, fileContent);
+    // await updateLocalInContainer(fileName, fileContent);
     socket.emit("fileContentUpdated", { fileName, fileContent });
   });
 
