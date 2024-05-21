@@ -9,6 +9,7 @@ import {
   getFileStructure,
   getFiles,
   updateLocalInContainer,
+  uploadAllChangedFiles,
   watchFiles,
 } from "./utils/files";
 import { z } from "zod";
@@ -75,6 +76,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${userIdAsString}`);
     killTerminal();
+    uploadAllChangedFiles(userIdAsString);
   });
 });
 
