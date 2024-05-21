@@ -172,20 +172,23 @@ let changedFiles = new Set();
 export const watchFiles = (socket: Socket) => {
   fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
     if (filename) {
-      changedFiles.add(filename);
+      const filePath = path.join(HOME_DIR, filename);
+      if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
+        changedFiles.add(filename);
+      }
       socket.emit("fileChanged", { filename, eventType });
     }
   });
 };
 
-export const uploadAllChangedFiles = (userId: string) => {
+export const uploadAllChangedFiles = async (userId: string) => {
   console.log(`Uploading all changed files for user ${userId}`, changedFiles);
-  changedFiles.forEach((filename) => {
+  for (const filename of changedFiles) {
     const filePath = path.join(HOME_DIR, filename as string);
-    if (fs.existsSync(filePath)) {
+    if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
       const content = fs.readFileSync(filePath, "utf8");
-      uploadFile(userId, filename as string, content);
+      await uploadFile(userId, filename as string, content);
     }
-  });
+  }
   changedFiles.clear();
 };
