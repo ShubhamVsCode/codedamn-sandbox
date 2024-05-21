@@ -50,8 +50,8 @@ io.on("connection", (socket) => {
   console.log(`User connected: ${userIdAsString}`);
 
   getFiles(userIdAsString, socket);
-  createTerminal(socket);
   getFileStructure(socket);
+  const terminal = createTerminal(socket);
   setInterval(() => monitorContainer(userIdAsString), 10000);
 
   socket.on("getFileStructure", () => getFileStructure(socket));
@@ -75,7 +75,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${userIdAsString}`);
-    killTerminal();
+    killTerminal(terminal);
     uploadAllChangedFiles(userIdAsString);
   });
 });

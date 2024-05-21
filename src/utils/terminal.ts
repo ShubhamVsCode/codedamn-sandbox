@@ -3,15 +3,16 @@ import { Socket } from "socket.io";
 import dotenv from "dotenv";
 dotenv.config();
 
-const terminal = fork("bash", [], {
-  name: "xterm-color",
-  cols: 80,
-  rows: 30,
-  cwd: "../../code",
-  env: process.env,
-});
-
 export const createTerminal = (socket: Socket) => {
+  const terminal = fork("bash", [], {
+    name: "xterm-color",
+    cols: 80,
+    rows: 30,
+    cwd: "../../code",
+    env: process.env,
+  });
+
+  console.log(`Creating terminal for user ${socket.id}`);
   terminal.write("echo $USER@$HOSTNAME:$(pwd)\r");
 
   socket.on("command", (command) => {
@@ -21,8 +22,13 @@ export const createTerminal = (socket: Socket) => {
   terminal.on("data", (data: any) => {
     socket.emit("output", data);
   });
+
+  console.log(`Terminal created for user ${socket.id}`);
+  return terminal;
 };
 
-export const killTerminal = () => {
-  terminal.kill();
+export const killTerminal = (terminal: any) => {
+  if (terminal) {
+    terminal.kill();
+  }
 };
