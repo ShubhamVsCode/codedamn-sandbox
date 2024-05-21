@@ -55,7 +55,8 @@ export const getFiles = async (userId: string, socket: Socket) => {
   const allFilesName = files?.map(({ Key }) => Key) || [];
 
   for (const file of allFilesName) {
-    const filePath = path.join(HOME_DIR, file!);
+    const relativeFilePath = file!.replace(`${folder}/`, "");
+    const filePath = path.join(HOME_DIR, relativeFilePath);
     const params = {
       Bucket: BUCKET_NAME,
       Key: file,
