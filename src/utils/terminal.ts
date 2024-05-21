@@ -7,18 +7,18 @@ const terminal = fork("bash", [], {
   name: "xterm-color",
   cols: 80,
   rows: 30,
-  cwd: process.env.HOME,
+  cwd: process.env.HOME_DIR,
   env: process.env,
 });
 
 export const createTerminal = (socket: Socket) => {
+  terminal.write("echo $USER@$HOSTNAME:$(pwd)\r");
+
   socket.on("command", (command) => {
-    console.log("Getting terminal command", command);
     terminal.write(command);
   });
 
-  terminal.on("data", (data) => {
-    console.log("Terminal Sending...", data);
+  terminal.on("data", (data: any) => {
     socket.emit("output", data);
   });
 };

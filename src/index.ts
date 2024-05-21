@@ -5,12 +5,12 @@ import { Server } from "socket.io";
 import { createTerminal, killTerminal } from "./utils/terminal";
 import {
   HOME_DIR,
-  createFileInContainer,
+  addFile,
   getFileContent,
   getFileStructure,
-  readDirectory,
+  getFiles,
   updateLocalInContainer,
-  uploadFile,
+  uploadAllChangedFiles,
 } from "./utils/files";
 import { z } from "zod";
 import morgan from "morgan";
@@ -50,6 +50,7 @@ io.on("connection", (socket) => {
 
   console.log(`User connected: ${userIdAsString}`);
 
+  getFiles(userIdAsString, socket);
   createTerminal(socket);
   getFileStructure(socket);
 
@@ -59,29 +60,9 @@ io.on("connection", (socket) => {
     socket.emit("fileChanged", { filename, eventType });
   });
 
-  socket.on(
-    "addFile",
-    async ({ filePath, isDir }: { filePath: string; isDir: boolean }) => {
-      const fullPath = path.join(HOME_DIR, filePath);
-      console.log(`Adding ${isDir ? "directory" : "file"} at ${fullPath}`);
-      try {
-        const dirPath = isDir ? fullPath : path.dirname(fullPath);
-        fs.mkdirSync(dirPath, { recursive: true });
-        if (!isDir) {
-          fs.writeFileSync(fullPath, "");
-        }
-        io.emit("newFileCreated", { filePath: fullPath, isDir });
-      } catch (error) {
-        console.error(`Error adding ${isDir ? "directory" : "file"}:`, error);
-        socket.emit("error", { message: error });
-      }
-    },
-  );
-
-  socket.on("newFile", async (fileName: string) => {
-    // await createFileInContainer(fileName);
-    // await uploadFile(userIdAsString, fileName, "");
-    // socket.emit("newFileCreated", fileName);
+  socket.on("addFile", async (data: { filePath: string; isDir: boolean }) => {
+    await addFile(data);
+    io.emit("newFileCreated", data);
   });
 
   socket.on("getFile", async ({ filePath }: { filePath: string }) => {
@@ -97,6 +78,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${userIdAsString}`);
     killTerminal();
+    uploadAllChangedFiles(userIdAsString);
   });
 });
 

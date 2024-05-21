@@ -48,37 +48,37 @@ export const readDirectory = (dirPath: string) => {
   return files;
 };
 
-// export const getFiles = async (userId: string, socket: Socket) => {
-//   const folder = `code-${userId}`;
-//   const files = await s3GetFiles(folder);
-//   // console.log(`Files in folder ${folder}:`, files);
+export const getFiles = async (userId: string, socket: Socket) => {
+  const folder = `code-${userId}`;
+  const files = await s3GetFiles(folder);
 
-//   const allFilesName = files?.map(({ Key }) => Key) || [];
+  const allFilesName = files?.map(({ Key }) => Key) || [];
 
-//   for (const file of allFilesName) {
-//     const fileNameLocal = file?.split("/").pop();
-//     const filePath = `${HOME_DIR}/${fileNameLocal}`;
-//     const params = {
-//       Bucket: BUCKET_NAME,
-//       Key: file,
-//     };
+  for (const file of allFilesName) {
+    const fileNameLocal = file?.split("/").pop();
+    const filePath = `${HOME_DIR}/${fileNameLocal}`;
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: file,
+    };
 
-//     const data = (await s3.send(new GetObjectCommand(params))).Body!;
-//     const fileContent = await data.transformToString("utf-8");
+    const data = (await s3.send(new GetObjectCommand(params))).Body!;
+    const fileContent = await data.transformToString("utf-8");
 
-//     const dir = path.dirname(filePath);
-//     if (!fs.existsSync(dir)) {
-//       fs.mkdirSync(dir, { recursive: true });
-//     }
-//     fs.writeFileSync(filePath, fileContent);
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(filePath, fileContent);
 
-//     console.log(`File ${filePath} downloaded successfully`);
-//   }
+    console.log(`File ${filePath} downloaded successfully`);
+  }
 
-//   const allFiles = allFilesName.map((file) => file?.split("/").pop());
+  const allFiles = allFilesName.map((file) => file?.split("/").pop());
 
-//   socket.emit("allFiles", allFiles);
-// };
+  // socket.emit("allFiles", allFiles);
+  getFileStructure(socket);
+};
 
 export const getFileStructure = async (socket: Socket) => {
   try {
@@ -125,16 +125,23 @@ export const uploadFile = async (
   await s3.send(new PutObjectCommand(params));
 };
 
-export const createFileInContainer = async (filePath: string) => {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(HOME_DIR + "/" + filePath, "", (err: unknown) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve("");
-      }
-    });
-  });
+export const addFile = async ({
+  filePath,
+  isDir,
+}: {
+  filePath: string;
+  isDir: boolean;
+}) => {
+  try {
+    const absolutePath = path.join(HOME_DIR, filePath);
+    const dirPath = isDir ? absolutePath : path.dirname(absolutePath);
+    fs.mkdirSync(dirPath, { recursive: true });
+    if (!isDir) {
+      fs.writeFileSync(absolutePath, "");
+    }
+  } catch (error) {
+    console.error("Error adding file:", error);
+  }
 };
 
 export const getFileContent = (filePath: string) => {
@@ -158,4 +165,23 @@ export const updateLocalInContainer = (
     console.log(`Error updating file: ${err}`);
     return;
   }
+};
+
+let changedFiles = new Set();
+
+fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
+  if (filename) {
+    changedFiles.add(filename);
+  }
+});
+
+export const uploadAllChangedFiles = (userId: string) => {
+  changedFiles.forEach((filename) => {
+    const filePath = path.join(HOME_DIR, filename as string);
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, "utf8");
+      uploadFile(userId, filename as string, content);
+    }
+  });
+  changedFiles.clear();
 };
