@@ -55,8 +55,7 @@ export const getFiles = async (userId: string, socket: Socket) => {
   const allFilesName = files?.map(({ Key }) => Key) || [];
 
   for (const file of allFilesName) {
-    const fileNameLocal = file?.split("/").pop();
-    const filePath = `${HOME_DIR}/${fileNameLocal}`;
+    const filePath = path.join(HOME_DIR, file!);
     const params = {
       Bucket: BUCKET_NAME,
       Key: file,
@@ -70,7 +69,6 @@ export const getFiles = async (userId: string, socket: Socket) => {
       fs.mkdirSync(dir, { recursive: true });
     }
     fs.writeFileSync(filePath, fileContent);
-
     console.log(`File ${filePath} downloaded successfully`);
   }
 
