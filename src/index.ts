@@ -11,6 +11,7 @@ import {
   getFiles,
   updateLocalInContainer,
   uploadAllChangedFiles,
+  watchFiles,
 } from "./utils/files";
 import { z } from "zod";
 import morgan from "morgan";
@@ -56,9 +57,7 @@ io.on("connection", (socket) => {
 
   socket.on("getFileStructure", () => getFileStructure(socket));
 
-  fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
-    socket.emit("fileChanged", { filename, eventType });
-  });
+  watchFiles(socket);
 
   socket.on("addFile", async (data: { filePath: string; isDir: boolean }) => {
     await addFile(data);

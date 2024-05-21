@@ -169,11 +169,14 @@ export const updateLocalInContainer = (
 
 let changedFiles = new Set();
 
-fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
-  if (filename) {
-    changedFiles.add(filename);
-  }
-});
+export const watchFiles = (socket: Socket) => {
+  fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
+    if (filename) {
+      changedFiles.add(filename);
+      socket.emit("fileChanged", { filename, eventType });
+    }
+  });
+};
 
 export const uploadAllChangedFiles = (userId: string) => {
   changedFiles.forEach((filename) => {
