@@ -4,19 +4,16 @@ import http from "http";
 import { Server } from "socket.io";
 import { createTerminal, killTerminal } from "./utils/terminal";
 import {
-  HOME_DIR,
   addFile,
   getFileContent,
   getFileStructure,
   getFiles,
   updateLocalInContainer,
-  uploadAllChangedFiles,
   watchFiles,
 } from "./utils/files";
 import { z } from "zod";
 import morgan from "morgan";
-import path from "path";
-import fs from "fs";
+import { monitorContainer } from "./utils/monitor";
 
 dotenv.config();
 
@@ -54,6 +51,7 @@ io.on("connection", (socket) => {
   getFiles(userIdAsString, socket);
   createTerminal(socket);
   getFileStructure(socket);
+  setInterval(() => monitorContainer(userIdAsString), 10000);
 
   socket.on("getFileStructure", () => getFileStructure(socket));
 
@@ -77,7 +75,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${userIdAsString}`);
     killTerminal();
-    uploadAllChangedFiles(userIdAsString);
   });
 });
 
