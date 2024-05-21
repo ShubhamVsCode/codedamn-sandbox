@@ -179,6 +179,7 @@ export const watchFiles = (socket: Socket) => {
 };
 
 export const uploadAllChangedFiles = (userId: string) => {
+  console.log(`Uploading all changed files for user ${userId}`, changedFiles);
   changedFiles.forEach((filename) => {
     const filePath = path.join(HOME_DIR, filename as string);
     if (fs.existsSync(filePath)) {
