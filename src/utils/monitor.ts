@@ -5,20 +5,38 @@ const idleThreshold = 30000;
 let lastActiveTime = Date.now();
 
 const getCpuUsage = () => {
-  const cpuUsageFile = "/sys/fs/cgroup/cpu/cpuacct.usage";
-  const cpuUsage = fs.readFileSync(cpuUsageFile, "utf8");
-  return parseInt(cpuUsage, 10);
+  const cpuStatFile = "/sys/fs/cgroup/cpu.stat";
+  if (fs.existsSync(cpuStatFile)) {
+    const cpuStat = fs.readFileSync(cpuStatFile, "utf8");
+    const usageMatch = cpuStat.match(/usage_usec (\d+)/);
+    if (usageMatch) {
+      return parseInt(usageMatch[1], 10);
+    }
+  }
+  console.log("CPU usage file not found or format incorrect");
+  return 0;
 };
 
 const getNetworkStats = () => {
   const netDevFile = "/proc/net/dev";
   const netData = fs.readFileSync(netDevFile, "utf8");
   const lines = netData.split("\n");
-  const ethLine = lines.find((line) => line.includes("eth0"));
-  const stats = ethLine?.trim().split(/\s+/);
+  const ethLine = lines.find(
+    (line) => line.includes("eth0") || line.includes("ens"),
+  );
+
+  if (ethLine) {
+    const stats = ethLine.trim().split(/\s+/);
+    return {
+      rxBytes: parseInt(stats[1], 10),
+      txBytes: parseInt(stats[9], 10),
+    };
+  }
+
+  console.log("Network interface not found");
   return {
-    rxBytes: parseInt(stats?.[1] || "0", 10),
-    txBytes: parseInt(stats?.[9] || "0", 10),
+    rxBytes: 0,
+    txBytes: 0,
   };
 };
 
