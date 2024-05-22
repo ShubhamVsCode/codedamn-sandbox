@@ -40,18 +40,18 @@ app.get("/health", (req, res) => {
 });
 
 app.use((req, res, next) => {
-  const runningAppPort = req.headers["x-forwarded-port"];
-  console.log(`Running app port: ${runningAppPort}`);
-  if (runningAppPort) {
-    const target = `http://localhost:${runningAppPort}`;
-    console.log(`Proxying request to ${target}`);
-    return createProxyMiddleware({
-      target,
-      changeOrigin: true,
-    })(req, res, next);
-  } else {
-    next();
-  }
+  // const runningAppPort = req.headers["x-forwarded-port"];
+  // console.log(`Running app port: ${runningAppPort}`);
+  // if (runningAppPort) {
+  //   const target = `http://localhost:${runningAppPort}`;
+  //   console.log(`Proxying request to ${target}`);
+  //   return createProxyMiddleware({
+  //     target,
+  //     changeOrigin: true,
+  //   })(req, res, next);
+  // } else {
+  next();
+  // }
 });
 io.on("connection", (socket) => {
   console.log("Connecting to socket");
