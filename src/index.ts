@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import http from "http";
+import { createProxyMiddleware } from "http-proxy-middleware";
+
 import { Server } from "socket.io";
 import { createTerminal, killTerminal } from "./utils/terminal";
 import {
@@ -32,10 +34,25 @@ app.use(express.json());
 app.use(morgan("tiny"));
 
 app.get("/health", (req, res) => {
+  console.log(req.headers);
   console.log("Health check for sandbox");
   res.json({ message: "Healthy Sandbox!" });
 });
 
+app.use((req, res, next) => {
+  const runningAppPort = req.headers["x-forwarded-port"];
+  console.log(`Running app port: ${runningAppPort}`);
+  if (runningAppPort) {
+    const target = `http://localhost:${runningAppPort}`;
+    console.log(`Proxying request to ${target}`);
+    return createProxyMiddleware({
+      target,
+      changeOrigin: true,
+    })(req, res, next);
+  } else {
+    next();
+  }
+});
 io.on("connection", (socket) => {
   console.log("Connecting to socket");
   const userId = socket.handshake.query.userId;
