@@ -175,6 +175,10 @@ let changedFiles = new Set();
 export const watchFiles = (socket: Socket) => {
   fs.watch(HOME_DIR, { recursive: true }, (eventType, filename) => {
     if (filename) {
+      if (filename.startsWith("node_modules")) {
+        return;
+      }
+
       const filePath = path.join(HOME_DIR, filename);
       if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
         changedFiles.add(filename);
