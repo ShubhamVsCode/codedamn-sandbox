@@ -6,12 +6,12 @@ dotenv.config();
 
 const homeDir = process.env.HOME_DIR || "../../code";
 
-try {
-  execSync(`mkdir -p ${homeDir}`);
-  execSync(`chown -R user:user ${homeDir}`);
-} catch (error) {
-  console.error("Error setting up home directory:", error);
-}
+// try {
+//   execSync(`mkdir -p ${homeDir}`);
+//   execSync(`chown -R user:user ${homeDir}`);
+// } catch (error) {
+//   console.error("Error setting up home directory:", error);
+// }
 
 export const createTerminal = (socket: Socket) => {
   const terminal = fork("bash", [], {
@@ -19,11 +19,11 @@ export const createTerminal = (socket: Socket) => {
     cols: 80,
     rows: 30,
     cwd: homeDir,
-    env: {
-      ...process.env,
-      HOME: homeDir,
-      USER: "user",
-    },
+    // env: {
+    //   ...process.env,
+    //   HOME: homeDir,
+    //   USER: "user",
+    // },
     uid: 1000,
     gid: 1000,
   });
