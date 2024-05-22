@@ -120,6 +120,10 @@ export const uploadFile = async (
     ContentLength: fileContent.length,
   };
 
+  if (fileName.startsWith("node_modules")) {
+    return;
+  }
+
   console.log(`Uploading file ${fileName} to folder ${folder}`);
   await s3.send(new PutObjectCommand(params));
 };
