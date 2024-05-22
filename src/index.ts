@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import http from "http";
 import { createProxyMiddleware } from "http-proxy-middleware";
-
+import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import { createTerminal, killTerminal } from "./utils/terminal";
 import {
@@ -32,6 +32,7 @@ const io = new Server(server, {
 
 app.use(express.json());
 app.use(morgan("tiny"));
+app.use(cookieParser());
 
 app.get("/health", (req, res) => {
   console.log(req.headers);
@@ -40,7 +41,8 @@ app.get("/health", (req, res) => {
 });
 
 app.use((req, res, next) => {
-  // const runningAppPort = req.headers["x-forwarded-port"];
+  const runningAppPort = req.cookies.port;
+  console.log(runningAppPort, "PORT");
   // console.log(`Running app port: ${runningAppPort}`);
   // if (runningAppPort) {
   //   const target = `http://localhost:${runningAppPort}`;
